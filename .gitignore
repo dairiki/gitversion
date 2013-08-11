@@ -1,0 +1,7 @@
+*~
+*.pyc
+
+/RELEASE-VERSION
+
+/.coverage
+/htmlcov/
