@@ -58,8 +58,11 @@ Setup
 
 **3. Adjust your MANIFEST.in**
     You should most likely distribute the ``RELEASE-VERSION`` file in
-    your *sdist* tarballs. To do that, add ``include RELEASE-VERSION``
-    to your ``MANIFEST.in``.
+    your *sdist* tarballs.  You also need to make sure to distrbute
+    the ``gitversion.py`` file.  To do that, add the following line to
+    your ``MANIFEST.in``::
+
+        include RELEASE-VERSION gitversion.py
 
 .. _gitversion.py:
      https://raw.github.com/dairiki/gitversion/master/gitversion.py
