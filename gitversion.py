@@ -63,11 +63,12 @@ Based on work by: Douglas Creager <dcreager@dcreager.net>
 
 """
 import errno
+import os
 import re
 from tempfile import TemporaryFile
 from subprocess import Popen, PIPE
 
-__version__ = '1.0'
+__version__ = '1.0.1'
 __all__ = ("get_version")
 
 # Name of file in which the version number is cached
@@ -138,6 +139,16 @@ def get_version(**kwargs):
     return git_version
 
 def get_git_version(**kwargs):
+    if not os.path.isdir('.git'):
+        # Bail if we're not in the top-level git directory.
+        # This avoids trouble when setup.py is being run, e.g., in a
+        # tox build directory which is a subdirectory of (some other)
+        # git-controlled directory.
+        return None
+
+    # This check is now redundant, but what the hell.  (If I delete
+    # it, I'll forget the name of the 'rev-parse --is-inside-work-tree''
+    # check.)
     try:
         run_git('rev-parse', '--is-inside-work-tree', **kwargs)
     except GitError:

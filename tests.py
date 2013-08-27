@@ -53,8 +53,9 @@ class _TestBase(unittest.TestCase):
         self.run_git('tag', '-a', '-m', 'test', tag)
 
     def get_git_version(self, **kwargs):
+        cwd = kwargs.pop('cwd', self.dir)
         from gitversion import get_git_version
-        with in_directory(self.dir):
+        with in_directory(cwd):
             return get_git_version(**kwargs)
 
     def get_version(self):
@@ -116,6 +117,12 @@ class Test_get_git_version(_TestBase):
         self.make_commit()
         self.run_git('tag', '42.2')     # non-annotated tag
         self.assertEqual(self.get_git_version(), '42.post1')
+
+    def test_no_git_version_if_run_from_subdirectory(self):
+        self.git_init()
+        subdir = os.path.join(self.dir, 'subdir')
+        os.mkdir(subdir)
+        self.assertEqual(self.get_git_version(cwd=subdir), None)
 
 class Test_get_version(_TestBase):
     def test_updates_cache(self):
