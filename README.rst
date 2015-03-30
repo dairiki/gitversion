@@ -1,6 +1,7 @@
-==========
-gitversion
-==========
+=========================
+Gitversion |build status|
+=========================
+
 
 Compute a PEP440_ version number from the output of ``git describe``.
 
@@ -85,3 +86,7 @@ Jeff Dairiki <dairiki@dairiki.org>
 Based on work `Douglas Creager`__ <dcreager@dcreager.net>
 
 __ http://dcreager.net/2010/02/10/setuptools-git-version-numbers/
+
+.. |build status| image::
+    https://travis-ci.org/dairiki/gitversion.svg?branch=master
+    :target: https://travis-ci.org/dairiki/gitversion
