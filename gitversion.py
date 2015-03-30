@@ -138,6 +138,7 @@ def get_version(**kwargs):
         set_cached_version(git_version)
     return git_version
 
+
 def get_git_version(**kwargs):
     if not os.path.isdir('.git'):
         # Bail if we're not in the top-level git directory.
@@ -151,28 +152,29 @@ def get_git_version(**kwargs):
     # check.)
     try:
         run_git('rev-parse', '--is-inside-work-tree', **kwargs)
-    except GitError:
+    except GitError:      # pragma: no cover
         # not a git repo, or 'git' command not found
         return None
     try:
         output = run_git('describe', '--dirty', **kwargs)
     except GitFailed as ex:
         if ex.returncode != 128:
-            raise
+            raise               # pragma: no cover
         # No releases have been tagged
         return '0.dev%d' % get_number_of_commits_in_head(**kwargs)
 
     output = ''.join(output).strip()
     m = GIT_DESCRIPION_re.match(output)
     if not m:
-        raise GitError(
+        raise GitError(         # pragma: no cover
             "can not parse the output of git describe (%r)" % output)
 
     release, post, dirty = m.groups()
     post = int(post) if post else 0
 
     if not RELEASE_VERSION_re.match(release):
-        raise GitError("invalid release version (%r)" % release)
+        raise GitError(         # pragma: no cover
+            "invalid release version (%r)" % release)
 
     version = release
     if dirty:
@@ -181,6 +183,7 @@ def get_git_version(**kwargs):
         version += '.post%d' % post
     return version
 
+
 def get_number_of_commits_in_head(**kwargs):
     try:
         return len(run_git('rev-list', 'HEAD', **kwargs))
@@ -188,6 +191,7 @@ def get_number_of_commits_in_head(**kwargs):
         if ex.returncode != 128:
             raise
         return 0
+
 
 def run_git(*args, **kwargs):
     git_cmd = kwargs.get('git_cmd', 'git')
@@ -208,7 +212,6 @@ def run_git(*args, **kwargs):
     return output
 
 
-
 def get_cached_version():
     try:
         with file(VERSION_CACHE) as f:
@@ -218,9 +221,11 @@ def get_cached_version():
             return None
         raise
 
+
 def set_cached_version(version):
     with file(VERSION_CACHE, "w") as f:
         return f.write(version + "\n")
 
+
 if __name__ == "__main__":
-    print get_version()
+    print get_version()         # pragma: no cover
