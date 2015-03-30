@@ -9,6 +9,7 @@ python:
   - pypy3
 install:
   - pip install coverage
+  - git config --global user.name "Jenkins CI"
 script:
   - coverage run --source=gitversion tests.py
   - coverage report --show-missing
