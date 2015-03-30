@@ -10,6 +10,7 @@ python:
 install:
   - pip install coverage
   - git config --global user.name "Jenkins CI"
+  - git config --global user.email "testing@example.com"
 script:
   - coverage run --source=gitversion tests.py
   - coverage report --show-missing
