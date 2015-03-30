@@ -68,7 +68,7 @@ import re
 from tempfile import TemporaryFile
 from subprocess import Popen, PIPE
 
-__version__ = '1.0.1'
+__version__ = '1.0.2'
 __all__ = ("get_version")
 
 # Name of file in which the version number is cached
