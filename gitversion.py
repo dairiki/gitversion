@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2013, Geoffrey T. Dairiki
+# Copyright (c) 2013, 2015, Geoffrey T. Dairiki
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
