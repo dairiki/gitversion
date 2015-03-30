@@ -74,12 +74,15 @@ __all__ = ("get_version")
 # Name of file in which the version number is cached
 VERSION_CACHE = 'RELEASE-VERSION'
 
+
 class GitError(Exception):
     pass
+
 
 class GitNotFound(GitError):
     """ The ``git`` command was not found.
     """
+
 
 class GitFailed(GitError):
     def __str__(self):
@@ -113,6 +116,7 @@ GIT_DESCRIPION_re = re.compile(
 
 # Valid PEP440 release versions
 RELEASE_VERSION_re = re.compile(r'\A\d+(\.\d+)*((?:a|b|c|rc)\d+)?\Z')
+
 
 def get_version(**kwargs):
     """ Calculate a valid PEP440 version number based on git history.
@@ -197,24 +201,27 @@ def run_git(*args, **kwargs):
     git_cmd = kwargs.get('git_cmd', 'git')
     cwd = kwargs.get('cwd')
     cmd = (git_cmd,) + args
-    stderr = TemporaryFile()
-    try:
-        proc = Popen(cmd, stdout=PIPE, stderr=stderr, cwd=cwd)
-    except OSError as ex:
-        if ex.errno == errno.ENOENT:
-            raise GitNotFound("%r not found in PATH" % git_cmd)
-        raise
-
-    output = proc.stdout.readlines()
-    if proc.wait() != 0:
-        stderr.seek(0)
-        raise GitFailed(cmd, proc.returncode, stderr.read().rstrip())
-    return output
+    with TemporaryFile() as stderr:
+        try:
+            proc = Popen(cmd, stdout=PIPE, stderr=stderr, cwd=cwd)
+        except OSError as ex:
+            if ex.errno == errno.ENOENT:
+                raise GitNotFound("%r not found in PATH" % git_cmd)
+            raise
+        try:
+            output = [line.decode('latin-1') for line in proc.stdout]
+            if proc.wait() != 0:
+                stderr.seek(0)
+                errout = stderr.read().decode('latin-1')
+                raise GitFailed(cmd, proc.returncode, errout.rstrip())
+            return output
+        finally:
+            proc.stdout.close()
 
 
 def get_cached_version():
     try:
-        with file(VERSION_CACHE) as f:
+        with open(VERSION_CACHE) as f:
             return f.read().strip()
     except IOError as ex:
         if ex.errno == errno.ENOENT:
@@ -223,9 +230,9 @@ def get_cached_version():
 
 
 def set_cached_version(version):
-    with file(VERSION_CACHE, "w") as f:
+    with open(VERSION_CACHE, "w") as f:
         return f.write(version + "\n")
 
 
 if __name__ == "__main__":
-    print get_version()         # pragma: no cover
+    print(get_version())        # pragma: no cover

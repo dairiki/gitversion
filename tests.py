@@ -6,7 +6,7 @@ from __future__ import absolute_import
 from contextlib import contextmanager
 import os
 import shutil
-from subprocess import Popen, PIPE, STDOUT
+from subprocess import check_call, Popen, PIPE, STDOUT
 import sys
 import tempfile
 import unittest
@@ -27,6 +27,7 @@ def in_directory(directory):
     finally:
         os.chdir(save_cwd)
 
+
 class _TestBase(unittest.TestCase):
     def setUp(self):
         self.dir = tempfile.mkdtemp()
@@ -34,18 +35,21 @@ class _TestBase(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self.dir)
 
-    def touch(self, filename):
-        with file(os.path.join(self.dir, filename), "a") as f:
-            f.write('\n')
+    def touch(self, filename, content='\n'):
+        with open(os.path.join(self.dir, filename), "a") as f:
+            f.write(content)
 
     def run_git(self, *args):
         cmd = ['git']
         cmd.extend(args)
         git = Popen(cmd, cwd=self.dir, stdout=PIPE, stderr=STDOUT)
-        output = git.stdout.read()
-        if git.wait() != 0:
-            self.fail("git failed with status %r:\n%s"
-                      % (git.returncode, output))
+        try:
+            output = git.stdout.read()
+            if git.wait() != 0:
+                self.fail("git failed with status %r:\n%s"
+                          % (git.returncode, output))
+        finally:
+            git.stdout.close()
 
     def git_init(self):
         self.run_git('init')
@@ -168,9 +172,8 @@ class Test_get_number_of_commits_in_head(_TestBase):
 
     def test_returns_one(self):
         self.run_git('init')
-        with open(os.path.join(self.dir, 'foo'), 'w') as f:
-            f.write('foo\n')
-        self.run_git('add', 'foo')
+        self.touch('f')
+        self.run_git('add', 'f')
         self.run_git('commit', '-m', 'bar')
         self.assertEqual(self.call_it(), 1)
 
@@ -241,10 +244,8 @@ class TestGitFailed(unittest.TestCase):
 
 class Test_run_as_script(unittest.TestCase):
     def test_run_it(self):
-        p = Popen((sys.executable, 'gitversion.py'), stdout=PIPE)
-        p.stdout.readlines()
-        status = p.wait()
-        self.assertEqual(status, 0)
+        with tempfile.TemporaryFile() as stdout:
+            check_call((sys.executable, 'gitversion.py'), stdout=stdout)
 
 
 if __name__ == '__main__':
