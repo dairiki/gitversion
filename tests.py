@@ -225,7 +225,7 @@ class Test_get_cached_version(_TestBase):
     def test_returns_version(self):
         with open(os.path.join(self.dir, 'RELEASE-VERSION'), 'w') as f:
             f.write('foo\n')
-        self.assertEqual(self.call_it(), u'foo')
+        self.assertEqual(self.call_it(), 'foo')
 
     def test_raises_error(self):
         os.mkdir(os.path.join(self.dir, 'RELEASE-VERSION'))
